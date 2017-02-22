@@ -1,2 +1,2 @@
->ranaaAUGUACCGUCCUUUUGGAGG....(((.......)))...
-ssssdddhhhhhhhdddsss
+ranaa	....(((.......)))...	ssssdddhhhhhhhdddsss	AUGUACCGUCCUUUUGGAGG
+ranaa	....(((.......)))...	ssssdddhhhhhhhdddsss	AUGUACCGUCCUUUUGGAGG

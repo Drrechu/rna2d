@@ -2,19 +2,27 @@
 # To change this template file, choose Tools | Templates
 # and open the template in the editor.
 
-__author__ = "User"
+__author__ = "Dawid Rech"
 __date__ = "$2017-02-06 20:25:52$"
 import re
 
 def rna_structure(dot_bracket_rna_file):
-    """Main Function"""
+    """Function creates string wich associate nucleotydes in RNA sequence with 
+    certein structure. Builds a graph of connections between nucleotydes and 
+    writes resoults to a text file.
+    
+    Args:
+    file: file containig RNA sequence, secondary structure in dot-bracket format 
+    and RNA sequence name with ">" prefix
+    
+    """
     
     name_seq_dot = file_loader(dot_bracket_rna_file) 
                 
     name = name_seq_dot[0]
     rna_seq = name_seq_dot[1]
     rna_dotbracket = name_seq_dot[2]
-    print rna_dotbracket
+    rna_dotbracket_pseudo = name_seq_dot[3]
     connections = connection_dict_creator(rna_dotbracket)        
      
     final_seq = [] 
@@ -45,34 +53,54 @@ def rna_structure(dot_bracket_rna_file):
         if x in bulge: stri += "b"*(x[1]-x[0]+1)                      
         if x in junction: stri += "j"*(x[1]-x[0]+1) 
                                          
-    pseudo = pseudo_handler(rna_dotbracket)
-    print "speudo", pseudo
+    pseudo = pseudo_handler(rna_dotbracket_pseudo)    
     print "Name: ",name.strip(">")
     print "RNA:  ", rna_seq
     print "db:   ", rna_dotbracket    
     print "stri: ", stri
-    graph_maker(connections,rna_dotbracket)
-    
-    f=open("db.txt",'w') 
-    f.write(name + rna_seq +rna_dotbracket + stri)
+    graph = graph_maker(connections,pseudo)
+    print "graph",graph
+    f=open("db.txt",'a') 
+    f.write(name.strip(">")   + '\t' + rna_dotbracket + '\t' + stri + '\t' + rna_seq + '\n')
     f.closed
     
 def file_loader(file):   
-    """File parser"""
+    """Function searches the file for name of the RNA sequance, sequence intself 
+    and it's secondary structure in dot-bracket format. Founded strings are 
+    returned along with RNA secondary structure in dot-bracket format without 
+    pseudo-knots.
+    
+    Args:
+    file: file containig RNA sequence, secondary structure in dot-bracket format 
+    and RNA sequence name with ">" prefix
+          
+    Returns:
+    list: RNA name, RNA seqence, RNA structure in dot-bracket format with pseudo-knots, 
+    RNA structure in dot bracket format without pseudo-knots
+    """
     f = open(file)
     rna_dotbracket_pseudo=""
     for line in f.readlines():
-        if re.match("[)(.]",line): rna_dotbracket_pseudo += line            
+        if re.match("[)(.]",line): rna_dotbracket_pseudo = line            
         if line[0]==">": name = line.strip()
         if re.match("[AGCU]",line): rna_seq = line.strip()
-    if name=="" or rna_seq=="" or rna_dotbracket_pseudo=="" : print "Zly format pliku"
-    rna_dotbracket = rna_dotbracket_pseudo.replace("[",".").replace("]",".")
-    f.closed 
-    
+    if name=="" or rna_seq=="" or rna_dotbracket_pseudo=="" : print ("Wrong file format")
+    rna_dotbracket = rna_dotbracket_pseudo.replace("[",".").replace("]",".").strip()
+    f.close   
     return [name,rna_seq,rna_dotbracket,rna_dotbracket_pseudo]
 
 def connection_dict_creator(RNA_in_dot_bracket):
-    """Function creates a map of connections between non neibour nucleotydes"""
+    """
+    Function creates a map of connections between non neibour nucleotydes.
+    
+    Args:
+    RNA_in_dot_bracket (str): RNA secondary structure in dot-bracket notation, 
+    without pseudo knots
+    
+    Returns:
+    connectios (dict): Dictionary with indexes of all nucleotydes as keys and 
+    indexes of bonded nucleotydes as values.
+    """
     connections = {}
     stack = []
     for i, j in enumerate(RNA_in_dot_bracket):
@@ -95,20 +123,46 @@ def connection_dict_creator(RNA_in_dot_bracket):
         return
     
     return connections          
-def graph_maker(Connections_Dict,RNA_in_dot_bracket):
+def graph_maker(Connections_Dict,Pseudo_Connections):
+    """
+    Function creates a graph with nucleotydes as nodes and connections between 
+    them as edges
+    
+    Args:
+    Connections_Dict (dict): Dictionary with indexes of all nucleotydes as keys and 
+    indexes of bonded nucleotydes as values.
+    Pseudo_Connections (dict): Dictionary with indexes of all nucleotydes as keys and 
+    indexes of nucleotydes that creates pseudoknots with them as values.
+    
+    Returns:
+    graph (dict): Dictionary with indexes of all nucleotydes as keys and lists 
+    of indexes of all nucleotydes connected to them.
+    """
+    graph={}
     for i in range(len(Connections_Dict)):
-        Connections_Dict[i]=[(Connections_Dict[i])]
-    graph=Connections_Dict
+        graph[i]=[]
+        if Connections_Dict[i]:graph[i]=[Connections_Dict[i]]
     for key in graph:
         if key-1>=0:graph[key].append(key-1)
         if key<len(graph)-1:graph[key].append(key+1)
-    print graph
+        if Pseudo_Connections[key]:graph[key].append(Pseudo_Connections[key])
+
     return graph
 
 def brackets_handler(RNA_in_dot_bracket):
+    """
+    Function recognizes duplex structure in RNA secondary structure
+    
+    Args: 
+    
+    RNA_in_dot_bracket (str): RNA secondary structure in dot-bracket notation, 
+    without pseudo-knots
+    
+    Returns: duplex (list): List of tuples, every tuple has twe elements, 
+    index of begining end end of duplex.    
+    """
     stack = re.compile('[()]{1,}')
     duplex = []
-    #new_duplex= []
     for s in stack.finditer(RNA_in_dot_bracket):
         duplex.append(s.span())
     for i ,d in enumerate(duplex):
@@ -117,7 +171,21 @@ def brackets_handler(RNA_in_dot_bracket):
     
 
 def dots_handler(RNA_in_dot_bracket,Connestions_Dict):
+    """
+    Function recognizes structures in RNA seconondary stucture. Recognized structures are:
+    single chain, hairpin, loop, bulge and junction.
     
+    Args:
+    RNA_in_dot_bracket (str): RNA secondary structure in dot-bracket notation, 
+    without pseudo knots
+    
+    Connections_Dict (dict): Dictionary with indexes of all nucleotydes as keys and 
+    indexes of bonded nucleotydes as values.
+    
+    Returns:
+    List of lists of tuples, every list is made of tuples, every tuple hes two 
+    elements, the begining and the end of certein strucure.    
+    """
     singleChain = []
     hairpins = []
     loop = []
@@ -130,8 +198,8 @@ def dots_handler(RNA_in_dot_bracket,Connestions_Dict):
         dots.append(dt.span()) 
    
     for dt in dots:
-        start = dt[0] #pierwszy z pary kropek
-        stop = dt[1] #drugi z pary kropek           
+        start = dt[0] 
+        stop = dt[1]        
         if start == 0 or stop>=len(RNA_in_dot_bracket)-1:
             singleChain.append((start,stop-1))
             continue
@@ -161,15 +229,23 @@ def dots_handler(RNA_in_dot_bracket,Connestions_Dict):
     for cr in junction:
         start = cr[0]        
         for pet in loop:
-            if pet[1] == Connestions_Dict.get(start-1,  'None') - 1: #koniec petli to skrzyzowanie
+            if pet[1] == Connestions_Dict.get(start-1,  'None') - 1: 
                 junction.append((pet[0],pet[1]))
                 loop.remove((pet[0],pet[1]))
     junction.sort  
     
-    return [singleChain,hairpins,loop,bulge,junction,loop]
+    return [singleChain,hairpins,loop,bulge,junction]
 
 def pseudo_handler(RNA_in_dot_bracket):
-    """Function returns pseudo"""
+    """Function creates dictionary with information about pseudo-knots.
+    Args:
+    RNA_in_dot_bracket (str): RNA secondary structure in dot-bracket notation, 
+    with pseudo knots.
+    
+    Returns:
+    pseudo (dict): Dictionary with indexes of all nucleotydes as keys and 
+    indexes of bonded nucleotydes creating pseudo-knots as values.
+    """
     
     pseudo = {}
     stack = []
@@ -194,10 +270,8 @@ def pseudo_handler(RNA_in_dot_bracket):
     
     return pseudo          
 if __name__ == "__main__":
-    
-     
-     rna_structure('file.txt')
-
-     
+    file = raw_input("Enter a path to file \t")       
+    rna_structure(file)
+    raw_input("Press Enter to terminate.") 
    
      

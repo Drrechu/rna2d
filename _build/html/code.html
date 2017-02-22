@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Auto generated documentation &#8212; rna2D 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to rna2D’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-src.rna2d">
+<span id="auto-generated-documentation"></span><h1>Auto generated documentation<a class="headerlink" href="#module-src.rna2d" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="src.rna2d.brackets_handler">
+<code class="descclassname">src.rna2d.</code><code class="descname">brackets_handler</code><span class="sig-paren">(</span><em>RNA_in_dot_bracket</em><span class="sig-paren">)</span><a class="headerlink" href="#src.rna2d.brackets_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function recognizes duplex structure in RNA secondary structure</p>
+<p>Args:</p>
+<p>RNA_in_dot_bracket (str): RNA secondary structure in dot-bracket notation, 
+without pseudo-knots</p>
+<p>Returns: duplex (list): List of tuples, every tuple has twe elements, 
+index of begining end end of duplex.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.rna2d.connection_dict_creator">
+<code class="descclassname">src.rna2d.</code><code class="descname">connection_dict_creator</code><span class="sig-paren">(</span><em>RNA_in_dot_bracket</em><span class="sig-paren">)</span><a class="headerlink" href="#src.rna2d.connection_dict_creator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function creates a map of connections between non neibour nucleotydes.</p>
+<p>Args:
+RNA_in_dot_bracket (str): RNA secondary structure in dot-bracket notation, 
+without pseudo knots</p>
+<p>Returns:
+connectios (dict): Dictionary with indexes of all nucleotydes as keys and 
+indexes of bonded nucleotydes as values.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.rna2d.dots_handler">
+<code class="descclassname">src.rna2d.</code><code class="descname">dots_handler</code><span class="sig-paren">(</span><em>RNA_in_dot_bracket</em>, <em>Connestions_Dict</em><span class="sig-paren">)</span><a class="headerlink" href="#src.rna2d.dots_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function recognizes structures in RNA seconondary stucture. Recognized structures are:
+single chain, hairpin, loop, bulge and junction.</p>
+<p>Args:
+RNA_in_dot_bracket (str): RNA secondary structure in dot-bracket notation, 
+without pseudo knots</p>
+<p>Connections_Dict (dict): Dictionary with indexes of all nucleotydes as keys and 
+indexes of bonded nucleotydes as values.</p>
+<p>Returns:
+List of lists of tuples, every list is made of tuples, every tuple hes two 
+elements, the begining and the end of certein strucure.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.rna2d.file_loader">
+<code class="descclassname">src.rna2d.</code><code class="descname">file_loader</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="headerlink" href="#src.rna2d.file_loader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function searches the file for name of the RNA sequance, sequence intself 
+and it&#8217;s secondary structure in dot-bracket format. Founded strings are 
+returned along with RNA secondary structure in dot-bracket format without 
+pseudo-knots.</p>
+<p>Args:
+file: file containig RNA sequence, secondary structure in dot-bracket format 
+and RNA sequence name with &#8220;&gt;&#8221; prefix</p>
+<p>Returns:
+list: RNA name, RNA seqence, RNA structure in dot-bracket format with pseudo-knots, 
+RNA structure in dot bracket format without pseudo-knots</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.rna2d.graph_maker">
+<code class="descclassname">src.rna2d.</code><code class="descname">graph_maker</code><span class="sig-paren">(</span><em>Connections_Dict</em>, <em>Pseudo_Connections</em><span class="sig-paren">)</span><a class="headerlink" href="#src.rna2d.graph_maker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function creates a graph with nucleotydes as nodes and connections between 
+them as edges</p>
+<p>Args:
+Connections_Dict (dict): Dictionary with indexes of all nucleotydes as keys and 
+indexes of bonded nucleotydes as values.
+Pseudo_Connections (dict): Dictionary with indexes of all nucleotydes as keys and 
+indexes of nucleotydes that creates pseudoknots with them as values.</p>
+<p>Returns:
+graph (dict): Dictionary with indexes of all nucleotydes as keys and lists 
+of indexes of all nucleotydes connected to them.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.rna2d.pseudo_handler">
+<code class="descclassname">src.rna2d.</code><code class="descname">pseudo_handler</code><span class="sig-paren">(</span><em>RNA_in_dot_bracket</em><span class="sig-paren">)</span><a class="headerlink" href="#src.rna2d.pseudo_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function creates dictionary with information about pseudo-knots.
+Args:
+RNA_in_dot_bracket (str): RNA secondary structure in dot-bracket notation, 
+with pseudo knots.</p>
+<p>Returns:
+pseudo (dict): Dictionary with indexes of all nucleotydes as keys and 
+indexes of bonded nucleotydes creating pseudo-knots as values.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.rna2d.rna_structure">
+<code class="descclassname">src.rna2d.</code><code class="descname">rna_structure</code><span class="sig-paren">(</span><em>dot_bracket_rna_file</em><span class="sig-paren">)</span><a class="headerlink" href="#src.rna2d.rna_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function creates string wich associate nucleotydes in RNA sequence with 
+certein structure. Builds a graph of connections between nucleotydes and 
+writes resoults to a text file.</p>
+<p>Args:
+file: file containig RNA sequence, secondary structure in dot-bracket format 
+and RNA sequence name with &#8220;&gt;&#8221; prefix</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to rna2D&#8217;s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/code.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Dawid Rech.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/code.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
