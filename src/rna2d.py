@@ -334,7 +334,7 @@ if __name__ == "__main__":
     try:
         rna_structure(sys.argv[1])
     except  IndexError:      
-        file = input("Please type path to a file you wont to processed. \t")       
+        file = input("Please type path to a file you want to processed. \t")       
         rna_structure(file)    
     input("Enter to terminate. Output has been added to the db.txt file")
     sys.exit()
