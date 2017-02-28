@@ -20,6 +20,8 @@ Program accepts dot-bracket sequnces with [, ], {, }, >, < as pseudo-knots.
 Program will not work if either of those lines is missing.
 Output, is stored in "db.txt" file.
 
+Program accepts path to the file as parameter or will ask for a path if parameter is not provided.
+
 It requires Python 2.7 with future module installed or Python 3.5.
  
 
