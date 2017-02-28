@@ -1,3 +1,3 @@
->ranaa
-AUGUACCGUCCUUUUGGAGG
-....(((..[[...))).]]
+>test
+auGAAAcccccgggAAAAAA
+--<.(((..{[...)))>]}

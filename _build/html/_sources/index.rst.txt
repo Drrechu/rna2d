@@ -14,9 +14,13 @@ RNA_SEQUENCE
 
 dot_bracket_notation
 
-Program will not work if either of those lines is missing.
+RNA sequnce can consist of letters U, A, G, C, u, a, g, c.
+Program accepts dot-bracket sequnces with [, ], {, }, >, < as pseudo-knots.
 
-It requires Python 2.7 or higher.
+Program will not work if either of those lines is missing.
+Output, is stored in "db.txt" file.
+
+It requires Python 2.7 with future module installed or Python 3.5.
  
 
 .. toctree::
