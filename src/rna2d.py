@@ -36,23 +36,22 @@ def rna_structure(dot_bracket_rna_file):
     pseudo = pseudo_handler(rna_dotbracket_pseudo)    
     duplex = brackets_handler(rna_dotbracket)
     structure_types = dots_handler(rna_dotbracket,connections)
-
     singleChain = structure_types[0]
     hairpins = structure_types[1]
     loop = structure_types[2]
     bulge = structure_types[3]
     junction = structure_types[4]
-    
-                   
+                     
     for s in singleChain: final_seq.append(s)               
     for h in hairpins: final_seq.append(h)             
     for l in loop: final_seq.append(l)             
     for b in bulge: final_seq.append(b)               
-    for j in junction: final_seq.append(j)       
-    for d in duplex: final_seq.append(d)
-    
+    for j in junction: final_seq.append(j)         
+    for d in duplex: final_seq.append(d)         
     final_seq.sort()
+    
     stri = ""
+    stri_pseudo=""  
     for x in final_seq:
         if x in duplex: stri += "d"*(x[1]-x[0]+1)                              
         if x in singleChain: stri += "s"*(x[1]-x[0]+1)                       
@@ -65,7 +64,7 @@ def rna_structure(dot_bracket_rna_file):
         if c == "-":
             i = rna_dotbracket_pseudo.index(c)
             stri = stri[:i]+"u"+stri[i:]
-    stri_pseudo=""    
+      
     for c in pseudo:
         if pseudo[c]:
             stri_pseudo += stri[c].upper()            
@@ -116,20 +115,17 @@ def file_loader(file):
     list: RNA name, RNA seqence, RNA structure in dot-bracket format with pseudo-knots, 
     RNA structure in dot bracket format without pseudo-knots
     """
-    f = open(file)
-    name=""
-    rna_dotbracket_pseudo=""
-    rna_seq=""
-    for line in f.readlines():
-        if re.match("[)(.{}<>-]",line): rna_dotbracket_pseudo = line.strip()            
-        if line[0]==">": name = line.strip()
-        if re.match("[AGCUuacg]",line): rna_seq = line.strip()
-    if name==""  or rna_seq=="" or rna_dotbracket_pseudo=="" : print ("Wrong file format")
-    rna_dotbracket = rna_dotbracket_pseudo.replace("[",".").replace("]",".").strip()
-    rna_dotbracket = rna_dotbracket.replace("{",".").replace("}",".")
-    rna_dotbracket = rna_dotbracket.replace("<",".").replace(">",".").replace("-",".")
-    f.flush()
-    f.close()  
+    name, rna_dotbracket_pseudo, rna_seq = "","","" 
+    with open(file) as f:       
+        for line in f.readlines():
+            if re.match("[)(.{}<>-]",line): rna_dotbracket_pseudo = line.strip()            
+            if line[0]==">": name = line.strip()
+            if re.match("[AGCUuacg]",line): rna_seq = line.strip()
+    if name==""  or rna_seq=="" or rna_dotbracket_pseudo=="" : 
+        raise ValueError()
+    rna_dotbracket=rna_dotbracket_pseudo
+    for c in ["[","]",">","<","{","}","-"]:
+            rna_dotbracket = rna_dotbracket.replace(c,".")          
     return [name,rna_seq,rna_dotbracket,rna_dotbracket_pseudo]
 
 def connection_dict_creator(RNA_in_dot_bracket):
@@ -158,12 +154,12 @@ def connection_dict_creator(RNA_in_dot_bracket):
                 connections[a] = b
                 connections[b] = a 
             else:
-                print("Too many closing brackets").strip("()")
-                return
-        
+                print("Too many closing brackets")
+                raise ValueError()                     
     if len(stack):
         print ("Too many opening brackets")
-        return
+        raise ValueError()
+    
     return connections          
 def graph_maker(Connections_Dict,Pseudo_Connections):
     """
@@ -228,13 +224,7 @@ def dots_handler(RNA_in_dot_bracket,Connestions_Dict):
     List of lists of tuples, every list is made of tuples, every tuple hes two 
     elements, the begining and the end of certein strucure.    
     """
-    singleChain = []
-    hairpins = []
-    loop = []
-    bulge = []
-    junction = []    
-    dots = []
-
+    singleChain, hairpins, loop, bulge, junction, dots = [],[],[],[],[],[]
     dot = re.compile('[.]{1,}')
     for dt in dot.finditer(RNA_in_dot_bracket):
         dots.append(dt.span()) 
@@ -269,7 +259,8 @@ def dots_handler(RNA_in_dot_bracket,Connestions_Dict):
             continue
             
     for cr in junction:
-        start = cr[0]        
+        start = cr[0]   
+        #removing loop wich are part of junctions 
         for pet in loop:
             if pet[1] == Connestions_Dict.get(start-1,  'None') - 1: 
                 junction.append((pet[0],pet[1]))
@@ -307,6 +298,7 @@ def pseudo_handler(RNA_in_dot_bracket):
                 pseudo[b] = a
             else:
                 print("Too many closing brackets")
+                raise ValueError()
                 return
         if j == '}':
             if len(stack2):
@@ -316,6 +308,7 @@ def pseudo_handler(RNA_in_dot_bracket):
                 pseudo[b] = a
             else:
                 print("Too many closing brackets")
+                raise ValueError()
                 return
         if j == '>':
             if len(stack3):
@@ -333,9 +326,17 @@ def pseudo_handler(RNA_in_dot_bracket):
 if __name__ == "__main__":
     try:
         rna_structure(sys.argv[1])
-    except  IndexError:      
-        file = input("Please type path to a file you wont to processed. \t")       
-        rna_structure(file)    
+    except  IndexError:
+        while True:
+            file = input("Please type path to a file you want to be processed. \t")       
+            try : rna_structure(file)
+            except ValueError:
+                print("Wrong file format. Modify your file and try again")
+                continue
+            except IOError:
+                print("Can't open the file. Plesa check if the path is correct and try again")
+                continue
+            break    
     input("Enter to terminate. Output has been added to the db.txt file")
     sys.exit()
    
